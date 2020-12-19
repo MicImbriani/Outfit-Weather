@@ -31,32 +31,38 @@ train_set = tv.datasets.FashionMNIST(
 # Now I will wrap (LOAD into) the training set into 
 # PyTorch's DataLoader object. This will give us access to
 # the data in our desired format.
-
-train_loader = torch.utils.data.DataLoader(train_set, batch_size=10)
-
+train_loader = torch.utils.data.DataLoader(train_set, batch_size=100)
 
 
 
 
-# To visualise one datapoint i.e. one image
+
+# Get one sample image
 def get_sample_image():
     sample = next(iter(train_set))
     image, label = sample
     return image, label
-    #print(label)
-    #plt.imshow(image.squeeze(),cmap='gray')
-    #plt.pause(10)
+    
+# Show one sample image
+def show_sample_image(image, label):
+    print(label)
+    plt.imshow(image.squeeze(), cmap='gray')
+    plt.pause(10)
 
 
 
-# To visualise multiple images from one batch
+# Get sample batch 
 def get_sample_batch():
     batch = next(iter(train_loader))
     images, labels = batch
+    return images, labels
+
+# Show sammple batch
+def show_sample_batch(images, labels):
     grid = tv.utils.make_grid(images, nrow=10)
     plt.figure(figsize=(15,15))
     print(labels)
-    plt.imshow(np.transpose(grid,(1,2,0)))
+    plt.imshow(np.transpose(grid, (1,2,0)))
     plt.pause(10)
 
 
