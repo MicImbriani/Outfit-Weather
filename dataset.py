@@ -24,6 +24,9 @@ train_set = tv.datasets.FashionMNIST(
     train = True,
     download = True,
     transform = transforms.Compose([transforms.ToTensor()])
+    loader = DataLoader(train_set, batch_size=len(train_set), num_workers=1)
+    data = next(iter(loader))
+    print(data[0].mean(), data[0].std())
 )
 
 
@@ -31,9 +34,9 @@ train_set = tv.datasets.FashionMNIST(
 # Now I will wrap (LOAD into) the training set into 
 # PyTorch's DataLoader object. This will give us access to
 # the data in our desired format.
-train_loader = torch.utils.data.DataLoader(train_set, batch_size=100)
-
-
+def get_train_loader(train_set, size, shuffle):
+    train_loader = torch.utils.data.DataLoader(train_set, batch_size=size, shuffle=shuffle)
+    return train_loader
 
 
 
