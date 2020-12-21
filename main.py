@@ -1,3 +1,4 @@
+import argparse
 import network
 import dataset
 import torch.nn.functional as F
@@ -6,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torchvision as tv
 import torch.optim as optim
+import torchvision.transforms as transforms
 
 from torch.utils.tensorboard import SummaryWriter
 from itertools import product
@@ -75,7 +77,7 @@ def confusion_matrix(ts, tp):
 network = network.Network()
 
 # Create training set object importing from dataset file
-    train_set = dataset.train_set
+train_set = dataset.train_set
 
 
 
@@ -174,3 +176,14 @@ with torch.no_grad():
 
 tb.close()
 
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-img", "--image_path", required=True, help="Path to the image to be used.")
+args = vars(ap.parse_args())
+
+my_img = args["image_path"]
+
+transform = transforms.ToTensor()
+my_img = transform(my_img)
+new_pred = network(my_img)
+print(new_pred)

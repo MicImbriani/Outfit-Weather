@@ -23,10 +23,10 @@ train_set = tv.datasets.FashionMNIST(
     root = './data/FashionMNIST',
     train = True,
     download = True,
-    transform = transforms.Compose([transforms.ToTensor()])
-    loader = DataLoader(train_set, batch_size=len(train_set), num_workers=1)
-    data = next(iter(loader))
-    print(data[0].mean(), data[0].std())
+    transform = transforms.Compose([transforms.ToTensor()]),
+    #loader = torch.utils.data.DataLoader(train_set, batch_size=len(train_set), num_workers=1),
+    #data = next(iter(loader)),
+    #print(data[0].mean(), data[0].std())
 )
 
 
