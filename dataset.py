@@ -55,7 +55,7 @@ def show_sample_image(image, label):
 
 
 # Get sample batch 
-def get_sample_batch():
+def get_sample_batch(train_loader):
     batch = next(iter(train_loader))
     images, labels = batch
     return images, labels

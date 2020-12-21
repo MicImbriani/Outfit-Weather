@@ -8,7 +8,9 @@ import numpy as np
 import torchvision as tv
 import torch.optim as optim
 import torchvision.transforms as transforms
+import PIL
 
+from PIL import Image
 from torch.utils.tensorboard import SummaryWriter
 from itertools import product
 
@@ -85,7 +87,7 @@ train_set = dataset.train_set
 # To do that, I need to create a dictionary with all the parameters I have.
 parameters = dict(
     lr = [0.01, 0.001],
-    batch_size = [10, 100, 1000],
+    batch_size = [1000],
     shuffle = [True, False])
 
 param_values = [v for v in parameters.values()]
@@ -96,10 +98,10 @@ for lr, batch_size, shuffle in product(*param_values):
 
     # Create train_set and train_loader imported from dataset file
     train_loader = dataset.get_train_loader(train_set, batch_size, shuffle)
-    images, labels = dataset.get_sample_batch()
+    images, labels = dataset.get_sample_batch(train_loader)
 
     # Create the optimizer 
-    optimizer = optim.Adam(network.parameters(), lr=learning_rate)
+    optimizer = optim.Adam(network.parameters(), lr=lr)
 
     # Unsqueeze the image to add a 4th dimension to turn a 3d image into a 1d batch
     #b = image.unsqueeze(0)
@@ -108,7 +110,7 @@ for lr, batch_size, shuffle in product(*param_values):
 
 
     # Create TensorTable instance and add images and graph
-    comment = f'batch_size={batch_size} lr={learning_rate} shuffle={shuffle}'
+    comment = f'batch_size={batch_size} lr={lr} shuffle={shuffle}'
     tb = SummaryWriter(comment=comment)
     grid = tv.utils.make_grid(images)
     tb.add_image('images', grid)
@@ -116,7 +118,7 @@ for lr, batch_size, shuffle in product(*param_values):
 
 
 
-    for epoch in range(1):
+    for epoch in range(4):
         # Counters for visualisation of progress during training
         total_loss = 0
         total_correct = 0
@@ -152,9 +154,9 @@ for lr, batch_size, shuffle in product(*param_values):
             # Print some information to keep track of the progress 
             print("epoch:", epoch, "total correct:", total_correct, "loss:", total_loss)
         
-        tab.add_scalar('Loss', total_loss, epoch)
-        tab.add_scalar('Number Correct', total_correct, epoch)
-        tab.add_scalar('Accuracy', total_correct/len(train_set), epoch)
+        tb.add_scalar('Loss', total_loss, epoch)
+        tb.add_scalar('Number Correct', total_correct, epoch)
+        tb.add_scalar('Accuracy', total_correct/len(train_set), epoch)
 
         for name, weight in network.named_parameters():
             tb.add_histogram(name, weight, epoch)
@@ -167,9 +169,9 @@ for lr, batch_size, shuffle in product(*param_values):
 
 
 # Turn off gradient tracking locally to remove overhead of keeping track of gradients/creating graph
-with torch.no_grad():
-    prediction_loader = dataset.train_loader
-    train_preds = get_all_preds(network, prediction_loader)
+#with torch.no_grad():
+#    prediction_loader = dataset.train_loader
+#    train_preds = get_all_preds(network, prediction_loader)
 
 #confusion_matrix(train_set, train_preds)
 
@@ -177,13 +179,30 @@ with torch.no_grad():
 tb.close()
 
 
-ap = argparse.ArgumentParser()
-ap.add_argument("-img", "--image_path", required=True, help="Path to the image to be used.")
-args = vars(ap.parse_args())
+#ap = argparse.ArgumentParser()
+#ap.add_argument("-img", "--image_path", required=True, help="Path to the image to be used.")
+#args = vars(ap.parse_args())
 
-my_img = args["image_path"]
+#my_img = args["image_path"]
+
+path = r'C:/Users/imbrm/Desktop/shoe2.jpg'
+my_img = Image.open(path)
+my_img = tv.transforms.functional.to_grayscale(my_img)
 
 transform = transforms.ToTensor()
 my_img = transform(my_img)
+my_img = my_img.unsqueeze(0)
+
+target_size = 28
+tensor_size = my_img.size()[2]
+delta = tensor_size - target_size
+delta = delta // 2
+my_img = my_img[:, :, delta:tensor_size-delta, delta:tensor_size-delta ]
+
 new_pred = network(my_img)
 print(new_pred)
+print(F.softmax(new_pred, dim=1))
+names2 = ['T-shirt/top', 'Trousers', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
+print()
+print(new_pred.argmax(dim=1))
+print(names2[int(new_pred.argmax(dim=1))])
