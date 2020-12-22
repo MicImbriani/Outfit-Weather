@@ -185,19 +185,20 @@ tb.close()
 
 #my_img = args["image_path"]
 
-path = r'C:/Users/imbrm/Desktop/shoe2.jpg'
+path = r'C:/Users/imbrm/Desktop/jacket.jpg'
 my_img = Image.open(path)
+my_img = my_img.resize((300,300), resample=0)
 my_img = tv.transforms.functional.to_grayscale(my_img)
 
 transform = transforms.ToTensor()
 my_img = transform(my_img)
 my_img = my_img.unsqueeze(0)
 
-target_size = 28
-tensor_size = my_img.size()[2]
-delta = tensor_size - target_size
-delta = delta // 2
-my_img = my_img[:, :, delta:tensor_size-delta, delta:tensor_size-delta ]
+#target_size = 28
+#tensor_size = my_img.size()[2]
+#delta = tensor_size - target_size
+#delta = delta // 2
+#my_img = my_img[:, :, delta:tensor_size-delta, delta:tensor_size-delta ]
 
 new_pred = network(my_img)
 print(new_pred)
